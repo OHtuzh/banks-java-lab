@@ -1,17 +1,40 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import org.example.application.console.ConsoleApplication;
+import org.example.application.engine.ApplicationEngine;
+import org.example.application.interfaces.IApplication;
+import org.example.banks.BankImpl;
+import org.example.banks.CentralBank;
+import org.example.repositories.AccountRepository;
+import org.example.repositories.BankRepository;
+import org.example.repositories.ClientRepository;
+import org.example.repositories.TransactionRepository;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        var clientStorage = new ClientRepository();
+        var accountStorage = new AccountRepository();
+        var transactionStorage = new TransactionRepository();
+        var bankStorage = new BankRepository();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        var centralBank = new CentralBank(
+                transactionStorage,
+                accountStorage,
+                bankStorage
+        );
+        IApplication application = new ConsoleApplication(
+                new ApplicationEngine(
+                        clientStorage,
+                        new BankImpl(
+                                transactionStorage,
+                                clientStorage,
+                                accountStorage,
+                                bankStorage,
+                                centralBank
+                        ),
+                        centralBank
+                )
+        );
+        application.run();
     }
 }
